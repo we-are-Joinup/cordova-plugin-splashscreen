@@ -38,6 +38,7 @@ typedef struct {
     NSString* _curImageName;
     BOOL _visible;
     BOOL _destroyed;
+    int8_t _hideTimes;
 }
 
 - (void)show:(CDVInvokedUrlCommand*)command;

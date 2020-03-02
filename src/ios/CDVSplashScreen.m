@@ -24,6 +24,8 @@
 
 #define kSplashScreenDurationDefault 3000.0f
 #define kFadeDurationDefault 500.0f
+#define DISMISS_ROUND 5
+#define CHECK_TIME 1.0f
 
 
 @implementation CDVSplashScreen
@@ -31,18 +33,46 @@
 - (void)pluginInitialize
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pageDidLoad) name:CDVPageDidLoadNotification object:nil];
-
+    _hideTimes = DISMISS_ROUND;
     [self setVisible:YES];
 }
 
 - (void)show:(CDVInvokedUrlCommand*)command
 {
+    _hideTimes = DISMISS_ROUND;
     [self setVisible:YES];
 }
 
 - (void)hide:(CDVInvokedUrlCommand*)command
 {
-    [self setVisible:NO andForce:YES];
+    NSMutableArray *allWKViews = [self allSubviews:self.webViewEngine.engineWebView];
+    Boolean descriptionPositive = false;
+    for (UIView *subView in allWKViews) {
+        if([subView.description containsString:@"div"] || [subView.description containsString:@"click-block"]){
+            descriptionPositive = true;
+        }
+    }
+    if( descriptionPositive || self->_hideTimes < 1){
+        //Loaded webview is ok
+        NSLog(@"Splashscreen: Dismiss splashscreen");
+        [self setVisible:NO andForce:YES];
+        return;
+    }
+    self->_hideTimes--;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(CHECK_TIME * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        NSLog(@"Splashscreen: Check again in %f try %d", CHECK_TIME, self->_hideTimes);
+        [self hide:command];
+    });
+}
+
+- (NSMutableArray*) allSubviews:(UIView*)view{
+    NSMutableArray *result = [[NSMutableArray alloc] initWithCapacity:view.subviews.count];
+    for (UIView *subView in view.subviews) {
+        [result addObject:subView];
+        [result addObjectsFromArray:[self allSubviews:subView]];
+    }
+    return result;
 }
 
 - (void)pageDidLoad
