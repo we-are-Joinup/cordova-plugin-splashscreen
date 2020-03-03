@@ -45,6 +45,12 @@
 
 - (void)hide:(CDVInvokedUrlCommand*)command
 {
+    self.webViewEngine.engineWebView.opaque = NO;
+    self.webViewEngine.engineWebView.scrollView.opaque = NO;
+    self.webViewEngine.engineWebView.backgroundColor = UIColor.clearColor;
+    self.webView.opaque = NO;
+    self.webView.backgroundColor = UIColor.clearColor;
+
     NSMutableArray *allWKViews = [self allSubviews:self.webViewEngine.engineWebView];
     Boolean descriptionPositive = false;
     for (UIView *subView in allWKViews) {
