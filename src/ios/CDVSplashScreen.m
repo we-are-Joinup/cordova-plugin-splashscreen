@@ -66,7 +66,7 @@
         [self setVisible:NO andForce:YES];
         return;
     }
-    if(description){
+    if(descriptionPositive){
         self->_hideNextTime = YES;
     }
     self->_hideTimes--;
