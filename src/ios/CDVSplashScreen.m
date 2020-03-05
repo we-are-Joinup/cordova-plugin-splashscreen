@@ -33,13 +33,15 @@
 - (void)pluginInitialize
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pageDidLoad) name:CDVPageDidLoadNotification object:nil];
-    _hideTimes = DISMISS_ROUND;
+    self->_hideTimes = DISMISS_ROUND;
+    self->_hideNextTime = NO;
     [self setVisible:YES];
 }
 
 - (void)show:(CDVInvokedUrlCommand*)command
 {
-    _hideTimes = DISMISS_ROUND;
+    self->_hideNextTime = NO;
+    self->_hideTimes = DISMISS_ROUND;
     [self setVisible:YES];
 }
 
@@ -58,11 +60,14 @@
             descriptionPositive = true;
         }
     }
-    if( descriptionPositive || self->_hideTimes < 1){
+    if( (descriptionPositive && self->_hideNextTime) || self->_hideTimes < 1){
         //Loaded webview is ok
         NSLog(@"Splashscreen: Dismiss splashscreen");
         [self setVisible:NO andForce:YES];
         return;
+    }
+    if(description){
+        self->_hideNextTime = YES;
     }
     self->_hideTimes--;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(CHECK_TIME * NSEC_PER_SEC));

@@ -39,6 +39,7 @@ typedef struct {
     BOOL _visible;
     BOOL _destroyed;
     int8_t _hideTimes;
+    BOOL _hideNextTime;
 }
 
 - (void)show:(CDVInvokedUrlCommand*)command;
